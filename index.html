@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Profile Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+        
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            flex: 1 1 300px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #4285f4;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+        
+        .search-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            align-self: flex-end;
+        }
+        
+        .search-btn:hover {
+            background: #3367d6;
+        }
+        
+        .search-btn:disabled {
+            background: #a0c3ff;
+            cursor: not-allowed;
+        }
+        
+        .results-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .results-header h2 {
+            color: #4285f4;
+        }
+        
+        .business-card {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+        
+        .business-image {
+            flex: 0 0 250px;
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+        
+        .business-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .business-details {
+            flex: 1 1 300px;
+        }
+        
+        .business-name {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .business-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stars {
+            color: #fbbc05;
+            margin-right: 10px;
+        }
+        
+        .business-info {
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: #555;
+        }
+        
+        .business-hours {
+            margin-top: 20px;
+        }
+        
+        .hours-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .hours-list {
+            list-style-type: none;
+        }
+        
+        .hours-list li {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .day {
+            min-width: 100px;
+            font-weight: 500;
+        }
+        
+        .social-links {
+            margin-top: 20px;
+        }
+        
+        .social-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+        
+        .social-icon:hover {
+            transform: translateY(-3px);
+        }
+        
+        .facebook {
+            background-color: #3b5998;
+        }
+        
+        .twitter {
+            background-color: #1da1f2;
+        }
+        
+        .instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        
+        .linkedin {
+            background-color: #0077b5;
+        }
+        
+        .youtube {
+            background-color: #ff0000;
+        }
+        
+        .additional-info {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4285f4;
+        }
+        
+        .info-card h4 {
+            margin-bottom: 10px;
+            color: #4285f4;
+        }
+        
+        .error-message {
+            display: none;
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            border-left: 4px solid #c62828;
+        }
+        
+        .success-message {
+            display: none;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4285f4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .business-card {
+                flex-direction: column;
+            }
+            
+            .business-image {
+                flex: 0 0 auto;
+                width: 100%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Business Profile Search</h1>
+            <p>Find detailed information about businesses using name or phone number</p>
+        </header>
+        
+        <section class="search-section">
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="businessName">Business Name</label>
+                    <input type="text" id="businessName" placeholder="Enter business name">
+                </div>
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="text" id="phoneNumber" placeholder="Enter phone number">
+                </div>
+                <button class="search-btn" id="searchButton">Search Business</button>
+            </div>
+            <p class="instruction">Enter either business name or phone number to search (at least one field is required)</p>
+        </section>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Searching for business information...</p>
+        </div>
+        
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Business Details</h2>
+                <button class="search-btn" id="newSearchButton">New Search</button>
+            </div>
+            <div class="business-card">
+                <div class="business-image" id="businessImage">
+                    <!-- Image will be loaded here -->
+                </div>
+                <div class="business-details">
+                    <h3 class="business-name" id="businessNameResult"></h3>
+                    <div class="business-rating">
+                        <div class="stars" id="businessStars"></div>
+                        <span id="businessRating"></span> (<span id="reviewCount"></span> reviews)
+                    </div>
+                    <div class="business-info">
+                        <div class="info-item">
+                            <span class="info-label">Address:</span>
+                            <span id="businessAddress"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Phone:</span>
+                            <span id="businessPhone"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Website:</span>
+                            <span id="businessWebsite"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status:</span>
+                            <span id="businessStatus"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Category:</span>
+                            <span id="businessCategory"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Price Range:</span>
+                            <span id="businessPrice"></span>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <div class="social-title">Social Media</div>
+                        <div class="social-icons" id="socialIcons">
+                            <!-- Social media icons will be added here -->
+                        </div>
+                    </div>
+                    <div class="business-hours">
+                        <div class="hours-title">Business Hours</div>
+                        <ul class="hours-list" id="businessHours">
+                            <!-- Hours will be loaded here -->
+                        </ul>
+                    </div>
+                    <div class="additional-info">
+                        <div class="info-card">
+                            <h4>Popular Times</h4>
+                            <div id="popularTimes"></div>
+                        </div>
+                        <div class="info-card">
+                            <h4>Attributes</h4>
+                            <div id="businessAttributes"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="error-message" id="errorMessage">
+            Error: Unable to fetch business details. Please check your inputs and try again.
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            Success! Business details loaded successfully.
+        </div>
+        
+        <footer>
+            <p>Business Profile Search Tool &copy; 2023 | Using Google Places API</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiKey = "AIzaSyD-qhnQlGDMd2BcoZo-hv5ld2fbDzP49sI";
+            const searchButton = document.getElementById('searchButton');
+            const newSearchButton = document.getElementById('newSearchButton');
+            const businessNameInput = document.getElementById('businessName');
+            const phoneNumberInput = document.getElementById('phoneNumber');
+            const resultsSection = document.getElementById('resultsSection');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Search button click handler
+            searchButton.addEventListener('click', function() {
+                const businessName = businessNameInput.value.trim();
+                const phoneNumber = phoneNumberInput.value.trim();
+                
+                // Validate inputs
+                if (!businessName && !phoneNumber) {
+                    alert('Please enter either a business name or phone number');
+                    return;
+                }
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                resultsSection.style.display = 'none';
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                
+                // Clear previous results
+                clearResults();
+                
+                // Call the function to fetch real business data
+                fetchBusinessData(businessName, phoneNumber);
+            });
+            
+            // New search button click handler
+            newSearchButton.addEventListener('click', function() {
+                resultsSection.style.display = 'none';
+                businessNameInput.value = '';
+                phoneNumberInput.value = '';
+                businessNameInput.focus();
+                clearResults();
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+            });
+            
+            // Function to clear all result fields
+            function clearResults() {
+                document.getElementById('businessNameResult').textContent = '';
+                document.getElementById('businessStars').textContent = '';
+                document.getElementById('businessRating').textContent = '';
+                document.getElementById('reviewCount').textContent = '';
+                document.getElementById('businessAddress').textContent = '';
+                document.getElementById('businessPhone').textContent = '';
+                document.getElementById('businessWebsite').textContent = '';
+                document.getElementById('businessStatus').textContent = '';
+                document.getElementById('businessCategory').textContent = '';
+                document.getElementById('businessPrice').textContent = '';
+                document.getElementById('businessImage').innerHTML = '';
+                document.getElementById('socialIcons').innerHTML = '';
+                document.getElementById('businessHours').innerHTML = '';
+                document.getElementById('popularTimes').textContent = '';
+                document.getElementById('businessAttributes').textContent = '';
+            }
+            
+            // Function to fetch business data from Google Places API
+            async function fetchBusinessData(businessName, phoneNumber) {
+                try {
+                    let query = '';
+                    
+                    if (businessName && phoneNumber) {
+                        query = `${businessName} ${phoneNumber}`;
+                    } else if (businessName) {
+                        query = businessName;
+                    } else if (phoneNumber) {
+                        query = phoneNumber;
+                    }
+                    
+                    console.log('Searching for:', query);
+                    
+                    // First, search for the place using Text Search
+                    const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
+                    
+                    console.log('Search URL:', searchUrl);
+                    
+                    const searchResponse = await fetch(searchUrl);
+                    
+                    if (!searchResponse.ok) {
+                        throw new Error(`HTTP error! status: ${searchResponse.status}`);
+                    }
+                    
+                    const searchData = await searchResponse.json();
+                    console.log('Search response:', searchData);
+                    
+                    if (searchData.status === 'ZERO_RESULTS') {
+                        throw new Error('No businesses found matching your search');
+                    }
+                    
+                    if (searchData.status !== 'OK') {
+                        throw new Error(`API error: ${searchData.status} - ${searchData.error_message || 'Please check your API key and try again'}`);
+                    }
+                    
+                    if (searchData.results.length === 0) {
+                        throw new Error('Business not found');
+                    }
+                    
+                    // Get the first result
+                    const place = searchData.results[0];
+                    const placeId = place.place_id;
+                    
+                    console.log('Found place:', place);
+                    
+                    // Now get detailed information using Place Details
+                    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,opening_hours,photos,types,price_level,url&key=${apiKey}`;
+                    
+                    console.log('Details URL:', detailsUrl);
+                    
+                    const detailsResponse = await fetch(detailsUrl);
+                    
+                    if (!detailsResponse.ok) {
+                        throw new Error(`HTTP error! status: ${detailsResponse.status}`);
+                    }
+                    
+                    const detailsData = await detailsResponse.json();
+                    console.log('Details response:', detailsData);
+                    
+                    if (detailsData.status !== 'OK') {
+                        throw new Error(`Could not fetch business details: ${detailsData.status}`);
+                    }
+                    
+                    const businessDetails = detailsData.result;
+                    
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    
+                    // Display the business details
+                    displayBusinessDetails(businessDetails, place);
+                    
+                    // Show success message
+                    successMessage.style.display = 'block';
+                    
+                } catch (error) {
+                    console.error('Error fetching business data:', error);
+                    loadingIndicator.style.display = 'none';
+                    errorMessage.textContent = `Error: ${error.message}`;
+                    errorMessage.style.display = 'block';
+                }
+            }
+            
+            // Function to display business details
+            function displayBusinessDetails(businessDetails, place) {
+                // Basic information
+                setTextContent('businessNameResult', businessDetails.name);
+                setTextContent('businessRating', businessDetails.rating || 'No ratings');
+                setTextContent('reviewCount', businessDetails.user_ratings_total || '0');
+                setTextContent('businessAddress', businessDetails.formatted_address);
+                setTextContent('businessPhone', businessDetails.formatted_phone_number || 'Not available');
+                
+                // Website with clickable link
+                const websiteElement = document.getElementById('businessWebsite');
+                if (businessDetails.website) {
+                    websiteElement.innerHTML = `<a href="${businessDetails.website}" target="_blank" style="color: #4285f4; text-decoration: none;">${businessDetails.website}</a>`;
+                } else {
+                    websiteElement.textContent = 'Not available';
+                }
+                
+                // Business status
+                const status = businessDetails.opening_hours && businessDetails.opening_hours.open_now ? 
+                    '<span style="color: #34a853; font-weight: bold;">Open</span>' : 
+                    '<span style="color: #ea4335; font-weight: bold;">Closed</span>';
+                document.getElementById('businessStatus').innerHTML = status;
+                
+                // Business category
+                setTextContent('businessCategory', businessDetails.types ? 
+                    businessDetails.types.map(type => type.replace(/_/g, ' ')).join(', ') : 'Not available');
+                
+                // Price level
+                let priceLevel = 'Not available';
+                if (businessDetails.price_level !== undefined) {
+                    priceLevel = '$'.repeat(businessDetails.price_level + 1);
+                }
+                setTextContent('businessPrice', priceLevel);
+                
+                // Rating stars
+                const rating = businessDetails.rating || 0;
+                const starsElement = document.getElementById('businessStars');
+                const fullStars = Math.round(rating);
+                starsElement.textContent = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+                
+                // Business hours
+                const hoursList = document.getElementById('businessHours');
+                hoursList.innerHTML = '';
+                
+                if (businessDetails.opening_hours && businessDetails.opening_hours.weekday_text) {
+                    businessDetails.opening_hours.weekday_text.forEach(hour => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span class="day">${hour.split(':')[0]}:</span> <span>${hour.split(':').slice(1).join(':').trim()}</span>`;
+                        hoursList.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>Hours information not available</span>`;
+                    hoursList.appendChild(li);
+                }
+                
+                // Business photo
+                const businessImage = document.getElementById('businessImage');
+                if (businessDetails.photos && businessDetails.photos.length > 0) {
+                    const photoReference = businessDetails.photos[0].photo_reference;
+                    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
+                    
+                    businessImage.innerHTML = `<img src="${photoUrl}" alt="${businessDetails.name}" 
+                        onerror="this.style.display='none'; this.parentElement.innerHTML='<span>Image not available</span>'">`;
+                } else {
+                    businessImage.innerHTML = '<span>No image available</span>';
+                }
+                
+                // Social media links (Note: Google Places API doesn't provide social media links directly)
+                const socialIcons = document.getElementById('socialIcons');
+                socialIcons.innerHTML = '<p style="color: #666; font-style: italic;">Social media links not available via Google Places API</p>';
+                
+                // Additional info
+                setTextContent('popularTimes', "Popular times data not available via API");
+                
+                // Business attributes
+                const attributesElement = document.getElementById('businessAttributes');
+                if (businessDetails.types && businessDetails.types.length > 0) {
+                    attributesElement.innerHTML = businessDetails.types.map(type => 
+                        `<span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; margin: 2px; display: inline-block;">${type.replace(/_/g, ' ')}</span>`
+                    ).join('');
+                } else {
+                    setTextContent('businessAttributes', "No attributes listed");
+                }
+                
+                // Show results section
+                resultsSection.style.display = 'block';
+            }
+            
+            // Helper function to safely set text content
+            function setTextContent(elementId, text) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = text || 'Not available';
+                }
+            }
+            
+            // Enable search on Enter key
+            businessNameInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+            
+            phoneNumberInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
