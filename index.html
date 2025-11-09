@@ -7,21 +7,20 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f0f0;
+      background: #f4f4f4;
       margin: 0;
       padding: 0;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       min-height: 100vh;
     }
 
     .container {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       width: 90%;
       max-width: 500px;
     }
@@ -34,7 +33,7 @@
     input {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 16px;
@@ -42,30 +41,45 @@
 
     button {
       width: 100%;
-      background-color: #007BFF;
+      background: #007bff;
       color: white;
-      padding: 12px;
       border: none;
+      padding: 12px;
+      font-size: 16px;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
-      transition: background 0.3s;
+      transition: 0.3s;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background: #0056b3;
     }
 
     #result {
       margin-top: 20px;
     }
 
-    .business {
-      background: #f9f9f9;
+    .error {
+      color: red;
+      background: #ffe6e6;
       padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
+      border-radius: 6px;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .loading {
+      text-align: center;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .business {
+      background: #fafafa;
       border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
     }
 
     .business img {
@@ -77,7 +91,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Search Business Details</h2>
+    <h2>🔍 Business Finder</h2>
     <input type="text" id="businessName" placeholder="Enter business name" />
     <input type="text" id="phoneNumber" placeholder="Enter phone number (optional)" />
     <button onclick="searchBusiness()">Search</button>
@@ -85,32 +99,52 @@
   </div>
 
   <script>
-    const apiKey = "AIzaSyD-qhnQlGDMd2BcoZo-hv5ld2fbDzP49sI";
+    const apiKey = "AIzaSyD-qhnQlGDMd2BcoZo-hv5ld2fbDzP49sI"; // Replace this after regenerating safely
 
     async function searchBusiness() {
       const name = document.getElementById("businessName").value.trim();
       const phone = document.getElementById("phoneNumber").value.trim();
-      const query = phone ? ${name} ${phone} : name;
-
-      const url = https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey};
-
-      const proxy = "https://corsproxy.io/?"; // Use a free CORS proxy for browser requests
-      const response = await fetch(proxy + url);
-      const data = await response.json();
-
       const resultDiv = document.getElementById("result");
       resultDiv.innerHTML = "";
 
-      if (data.results && data.results.length > 0) {
+      if (!name) {
+        resultDiv.innerHTML = `<div class="error">⚠️ Please enter a business name.</div>`;
+        return;
+      }
+
+      const query = phone ? `${name} ${phone}` : name;
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
+      
+      // show loading
+      resultDiv.innerHTML = `<div class="loading">Loading results...</div>`;
+
+      try {
+        // Using a public proxy to bypass CORS for testing
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+
+        resultDiv.innerHTML = "";
+
+        if (data.error_message) {
+          resultDiv.innerHTML = `<div class="error">❌ API Error: ${data.error_message}</div>`;
+          return;
+        }
+
+        if (!data.results || data.results.length === 0) {
+          resultDiv.innerHTML = `<div class="error">⚠️ No business found for your search.</div>`;
+          return;
+        }
+
         data.results.slice(0, 3).forEach(place => {
           const photoRef = place.photos ? place.photos[0].photo_reference : null;
           const photoUrl = photoRef
-            ? https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoRef}&key=${apiKey}
+            ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoRef}&key=${apiKey}`
             : "";
 
           resultDiv.innerHTML += `
             <div class="business">
-              ${photoUrl ? <img src="${photoUrl}" alt="${place.name}"> : ""}
+              ${photoUrl ? `<img src="${photoUrl}" alt="${place.name}">` : ""}
               <h3>${place.name}</h3>
               <p><b>Address:</b> ${place.formatted_address || "Not available"}</p>
               <p><b>Rating:</b> ${place.rating || "N/A"} ⭐</p>
@@ -118,8 +152,8 @@
             </div>
           `;
         });
-      } else {
-        resultDiv.innerHTML = "<p>No business found.</p>";
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="error">🚫 Request Failed: ${error.message}<br>Possible CORS or invalid API key issue.</div>`;
       }
     }
   </script>
