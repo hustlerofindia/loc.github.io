@@ -454,7 +454,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const apiKey = "AIzaSyD-qhnQlGDMd2BcoZo-hv5ld2fbDzP49sI";
+            // IMPORTANT: You need to replace this with your actual Google Places API key
+            // Get one from: https://developers.google.com/maps/documentation/places/web-service/get-api-key
+            const apiKey = "YOUR_GOOGLE_PLACES_API_KEY_HERE";
+            
             const searchButton = document.getElementById('searchButton');
             const newSearchButton = document.getElementById('newSearchButton');
             const businessNameInput = document.getElementById('businessName');
@@ -472,6 +475,12 @@
                 // Validate inputs
                 if (!businessName && !phoneNumber) {
                     alert('Please enter either a business name or phone number');
+                    return;
+                }
+                
+                // Validate API key
+                if (!apiKey || apiKey === "YOUR_GOOGLE_PLACES_API_KEY_HERE") {
+                    showError("Please set up a valid Google Places API key in the code");
                     return;
                 }
                 
@@ -516,6 +525,13 @@
                 document.getElementById('businessHours').innerHTML = '';
                 document.getElementById('popularTimes').textContent = '';
                 document.getElementById('businessAttributes').textContent = '';
+            }
+            
+            // Function to show error message
+            function showError(message) {
+                loadingIndicator.style.display = 'none';
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
             }
             
             // Function to fetch business data from Google Places API
@@ -566,7 +582,9 @@
                     console.log('Found place:', place);
                     
                     // Now get detailed information using Place Details
-                    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,opening_hours,photos,types,price_level,url&key=${apiKey}`;
+                    // Requesting more fields for better data
+                    const fields = 'name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,opening_hours,photos,types,price_level,url,business_status';
+                    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${apiKey}`;
                     
                     console.log('Details URL:', detailsUrl);
                     
@@ -596,9 +614,7 @@
                     
                 } catch (error) {
                     console.error('Error fetching business data:', error);
-                    loadingIndicator.style.display = 'none';
-                    errorMessage.textContent = `Error: ${error.message}`;
-                    errorMessage.style.display = 'block';
+                    showError(`Error: ${error.message}`);
                 }
             }
             
@@ -614,15 +630,17 @@
                 // Website with clickable link
                 const websiteElement = document.getElementById('businessWebsite');
                 if (businessDetails.website) {
-                    websiteElement.innerHTML = `<a href="${businessDetails.website}" target="_blank" style="color: #4285f4; text-decoration: none;">${businessDetails.website}</a>`;
+                    websiteElement.innerHTML = `<a href="${businessDetails.website}" target="_blank" style="color: #4285f4; text-decoration: none;">Visit Website</a>`;
                 } else {
                     websiteElement.textContent = 'Not available';
                 }
                 
                 // Business status
-                const status = businessDetails.opening_hours && businessDetails.opening_hours.open_now ? 
-                    '<span style="color: #34a853; font-weight: bold;">Open</span>' : 
-                    '<span style="color: #ea4335; font-weight: bold;">Closed</span>';
+                const status = businessDetails.opening_hours && businessDetails.opening_hours.open_now !== undefined ? 
+                    (businessDetails.opening_hours.open_now ? 
+                        '<span style="color: #34a853; font-weight: bold;">Open</span>' : 
+                        '<span style="color: #ea4335; font-weight: bold;">Closed</span>') : 
+                    '<span style="color: #666;">Status unknown</span>';
                 document.getElementById('businessStatus').innerHTML = status;
                 
                 // Business category
@@ -632,7 +650,7 @@
                 // Price level
                 let priceLevel = 'Not available';
                 if (businessDetails.price_level !== undefined) {
-                    priceLevel = '$'.repeat(businessDetails.price_level + 1);
+                    priceLevel = '$'.repeat(businessDetails.price_level);
                 }
                 setTextContent('businessPrice', priceLevel);
                 
@@ -649,7 +667,10 @@
                 if (businessDetails.opening_hours && businessDetails.opening_hours.weekday_text) {
                     businessDetails.opening_hours.weekday_text.forEach(hour => {
                         const li = document.createElement('li');
-                        li.innerHTML = `<span class="day">${hour.split(':')[0]}:</span> <span>${hour.split(':').slice(1).join(':').trim()}</span>`;
+                        const dayParts = hour.split(':');
+                        const day = dayParts[0];
+                        const hours = dayParts.slice(1).join(':').trim();
+                        li.innerHTML = `<span class="day">${day}:</span> <span>${hours}</span>`;
                         hoursList.appendChild(li);
                     });
                 } else {
@@ -664,8 +685,15 @@
                     const photoReference = businessDetails.photos[0].photo_reference;
                     const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${apiKey}`;
                     
-                    businessImage.innerHTML = `<img src="${photoUrl}" alt="${businessDetails.name}" 
-                        onerror="this.style.display='none'; this.parentElement.innerHTML='<span>Image not available</span>'">`;
+                    const img = document.createElement('img');
+                    img.src = photoUrl;
+                    img.alt = businessDetails.name;
+                    img.onerror = function() {
+                        this.style.display = 'none';
+                        businessImage.innerHTML = '<span>Image not available</span>';
+                    };
+                    businessImage.innerHTML = '';
+                    businessImage.appendChild(img);
                 } else {
                     businessImage.innerHTML = '<span>No image available</span>';
                 }
